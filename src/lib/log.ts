@@ -1,11 +1,18 @@
+import { createStream, table } from 'table'
+
+import { baseObjectParams } from '../types/object';
 import chalk from 'chalk'
-import { table } from 'table'
 
 export class Log {
-  tableCtx: any[] = []
+  isStream: boolean = false
+  streamTable: any = {}
+  tableCtx: any = null
 
-  constructor(tableCtx?: any) {
-    this.tableCtx = tableCtx
+  constructor(params: baseObjectParams = {}) {
+    const { table, isStream } = params
+
+    table && (this.tableCtx = table)
+    this.isStream = !!isStream
   }
 
   info(...args: any[]): Log {
@@ -13,6 +20,11 @@ export class Log {
       return this.output.apply(this, [
         table(this.tableCtx, this.setTabel('info'))
       ])
+    }
+
+    if (this.isStream && this.streamTable.info) {
+      this.streamTable.info.write.apply(createStream, args)
+      return this
     }
 
     return this.output.apply(this, [
@@ -28,6 +40,11 @@ export class Log {
       ])
     }
 
+    if (this.isStream && this.streamTable.error) {
+      this.streamTable.info.write.apply(createStream, args)
+      return this
+    }
+
     return this.output.apply(this, [
       chalk.white.bgRed('[ERROR]'),
       ...(args.map(arg => chalk.red(JSON.stringify(arg))))
@@ -35,11 +52,30 @@ export class Log {
   }
 
   table(data: any[]): Log {
-    return new Log(data)
+    return new Log({ table: data})
   }
 
+  stream({ columnCount = 1 }): Log {
+    const streamLog = new Log({ isStream: true })
+    const columnDefault = { width: 50 }
 
-  protected setTabel(type: string) {
+    streamLog.streamTable = {
+      info: createStream({
+        columnDefault,
+        ...streamLog.setTabel('info'),
+        columnCount
+      }),
+      error: createStream({
+        columnDefault,
+        ...streamLog.setTabel('error'),
+        columnCount
+      })
+    }
+
+    return streamLog
+  }
+
+  setTabel(type: string) {
     let style = (() => {
       switch(type) {
         case 'info':

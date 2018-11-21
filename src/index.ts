@@ -6,8 +6,8 @@ commander
   .description('nos-cli');
 
 commander
-  .command('init [preset_conf]')
-  .alias('i')
+  // .command('init [preset_conf]')
+  // .alias('i')
   .description('初始化配置文件')
   .option("-c, --config <config_path>", "配置文件路径")
   .option("-b, --bucket <bucket_name>", "桶名")

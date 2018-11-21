@@ -1,3 +1,3 @@
 export interface baseObjectParams {
-  [propName: string]: string;
+  [propName: string]: any;
 }

@@ -158,8 +158,8 @@ export default class NOS {
     this.nos.deleteObject({
       objectKey
     }).then(() => {
-      this.listener.removed && this.listener.removed(objectKey)
-      deferred.resolve(objectKey)
+      this.listener.removed && this.listener.removed({ objectKey })
+      deferred.resolve({ objectKey })
     }).catch(err => {
       this.listener.removeError && this.listener.removeError(err)
       deferred.reject(err)
