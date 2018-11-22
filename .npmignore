@@ -2,3 +2,4 @@ src
 dist
 static
 gulpfile.js
+tsconfig.json

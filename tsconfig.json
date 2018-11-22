@@ -58,8 +58,6 @@
     "emitDecoratorMetadata": false         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "exclude": [
-    "src/play.ts",
-    "test",
     "node_modules"
   ]
 }

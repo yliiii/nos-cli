@@ -94,21 +94,21 @@ export async function list(nos: NosClient, prefix: string) {
  * 上传资源
  */
 export function upload(nos: NosClient, path: string, prefix: any = '', ) {
+  /**路径容错，防止上传至错误路径 */
+  if (prefix && prefix[prefix.length - 1] !== '/') {
+    prefix += '/'
+  }
+
   let filesMap = nos.getFilesArgs(path).map(map => {
     let { objectKey, fileName, file, contentType } = map
-
-    /**路径容错，防止上传至错误路径 */
-    if (prefix && prefix.length[prefix.length - 1] !== '/') {
-      prefix = prefix + '/'
-    }
 
     return {
       ...map,
       objectKey: prefix + objectKey
     }
   })
-
-  nos.batchHandler(filesMap)
+  console.log(filesMap)
+  // nos.batchHandler(filesMap)
 
   return filesMap
 }

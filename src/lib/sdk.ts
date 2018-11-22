@@ -75,25 +75,39 @@ export default class NOS {
    */
   getFilesArgs(filePath: string, rootPath?: string) {
     let files: Array<fileMap> = []
+    let fileState = fs.lstatSync(resolve(filePath))
+    let handleFile = (fileName: string): void | fileMap => {
+      if (FILE_IGNORE.indexOf(fileName) > -1) return
 
-    fs.readdirSync(filePath).forEach(fileName => {
-      const stat = fs.lstatSync(resolve(filePath, fileName))
+        let ext = fileName.split('.')
+        let pathPrefix = this.nosEnvPath || rootPath || ''
 
-      if (stat.isDirectory()) {
-        files = files.concat(this.getFilesArgs(resolve(filePath, fileName), rootPath ? `${rootPath}/${fileName}` : fileName))
-      } else {
-        if (FILE_IGNORE.indexOf(fileName) > -1) return
+        pathPrefix && (pathPrefix += '/')
 
-        const ext = fileName.split('.')
-
-        files.push({
+        return {
           fileName,
-          objectKey: `${this.nosEnvPath || rootPath || ''}/${fileName}`,
+          objectKey: `${pathPrefix || ''}${fileName}`,
           file: resolve(filePath, fileName),
           contentType: this.getContentType(ext.length > 1 ? ext[ext.length - 1] : ext[0])
-        })
-      }
-    })
+        }
+    }
+
+    if (fileState.isDirectory()) {
+      fs.readdirSync(filePath).forEach(fileName => {
+        const stat = fs.lstatSync(resolve(filePath, fileName))
+  
+        if (stat.isDirectory()) {
+          files = files.concat(this.getFilesArgs(resolve(filePath, fileName), rootPath ? `${rootPath}/${fileName}` : fileName))
+        } else {
+          const map = handleFile(fileName)
+          map && files.push(map)
+        }
+      })
+    } else {
+      let fileName = filePath.split('/')
+      let map = handleFile(fileName[fileName.length - 1])
+      map && files.push(map)
+    }
 
     return files
   }
