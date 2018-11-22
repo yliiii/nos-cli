@@ -20,5 +20,5 @@ const tasks = {
 Reflect.ownKeys(tasks).forEach(task=>gulp.task(task, tasks[task]))
 
 gulp.task('build', function(cb) {
-  runSequence('clean', 'copyFile', 'appendEnv', cb)
+  runSequence('copyFile', 'appendEnv', cb)
 })
