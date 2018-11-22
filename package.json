@@ -5,6 +5,7 @@
   "bin": {
     "nos": "bin/index.js"
   },
+  "main": "bin/lib/index.js",
   "scripts": {
     "dev": "ts-node ./src/index",
     "build": "rm -rf ./bin ./dist && tsc && gulp build",
