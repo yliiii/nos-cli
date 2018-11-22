@@ -76,7 +76,7 @@ export default class NOS {
   getFilesArgs(filePath: string, rootPath?: string) {
     let files: Array<fileMap> = []
     let fileState = fs.lstatSync(resolve(filePath))
-    let handleFile = (fileName: string): void | fileMap => {
+    let handleFile = (fileName: string, isFromDir: boolean = false): void | fileMap => {
       if (FILE_IGNORE.indexOf(fileName) > -1) return
 
         let ext = fileName.split('.')
@@ -87,7 +87,7 @@ export default class NOS {
         return {
           fileName,
           objectKey: `${pathPrefix || ''}${fileName}`,
-          file: resolve(filePath, fileName),
+          file: isFromDir ? resolve(filePath, fileName) : resolve(filePath),
           contentType: this.getContentType(ext.length > 1 ? ext[ext.length - 1] : ext[0])
         }
     }
@@ -95,11 +95,11 @@ export default class NOS {
     if (fileState.isDirectory()) {
       fs.readdirSync(filePath).forEach(fileName => {
         const stat = fs.lstatSync(resolve(filePath, fileName))
-  
+
         if (stat.isDirectory()) {
           files = files.concat(this.getFilesArgs(resolve(filePath, fileName), rootPath ? `${rootPath}/${fileName}` : fileName))
         } else {
-          const map = handleFile(fileName)
+          const map = handleFile(fileName, true)
           map && files.push(map)
         }
       })
