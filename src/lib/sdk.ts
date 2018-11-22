@@ -3,6 +3,7 @@ import {
   fileMap,
   listenerCallback
 } from '../types/sdk'
+import { baseObjectParams } from '../types/object'
 
 import { NosClient } from '@xgheaven/nos-node-sdk'
 import Q from 'q'
@@ -10,6 +11,7 @@ import fs from 'fs'
 import { resolve } from 'path'
 import { sdkConf } from '../types/cmd'
 import through2 from 'through2'
+import crypto from 'crypto'
 
 const FILE_IGNORE = [
   '.DS_Store'
@@ -69,12 +71,37 @@ export default class NOS {
   }
 
   /**
+   * 
+   * @param map
+   */
+  protected setMd5Key(map: fileMap): fileMap {
+    let buffer = fs.readFileSync(map.file)
+    let fsHash = crypto.createHash('md5')
+
+    fsHash.update(buffer)
+
+    let md5Map = { ...map }
+    let md5Str = fsHash.digest('hex')
+    let name = map.objectKey.split('.')
+
+    if (name.length > 1) {
+      name[name.length - 1] = md5Str + '.' + name[name.length - 1]
+      md5Map.objectKey = name.join('.')
+    } else {
+      md5Map.objectKey += '.' + md5Str
+    }
+
+    return md5Map
+  }
+
+  /**
    *
    * @param filePath
    * @param rootPath 
    */
-  getFilesArgs(filePath: string, rootPath?: string) {
+  getFilesArgs(params: baseObjectParams = { filePath: '', rootPath: '', md5: false }) {
     let files: Array<fileMap> = []
+    let { filePath, rootPath, md5 } = params
     let fileState = fs.lstatSync(resolve(filePath))
     let handleFile = (fileName: string, isFromDir: boolean = false): void | fileMap => {
       if (FILE_IGNORE.indexOf(fileName) > -1) return
@@ -97,21 +124,29 @@ export default class NOS {
         const stat = fs.lstatSync(resolve(filePath, fileName))
 
         if (stat.isDirectory()) {
-          files = files.concat(this.getFilesArgs(resolve(filePath, fileName), rootPath ? `${rootPath}/${fileName}` : fileName))
+          files = files.concat(this.getFilesArgs({
+            filePath: resolve(filePath, fileName),
+            rootPath: rootPath ? `${rootPath}/${fileName}` : fileName,
+            md5
+          }))
         } else {
           const map = handleFile(fileName, true)
-          map && files.push(map)
+          map && files.push(md5 ? this.setMd5Key(map) : map)
         }
       })
     } else {
       let fileName = filePath.split('/')
       let map = handleFile(fileName[fileName.length - 1])
-      map && files.push(map)
+      map && files.push(md5 ? this.setMd5Key(map) : map)
     }
 
     return files
   }
 
+  /**
+   * 
+   * @param path
+   */
   setNosEnvPath(path: string) {
     this.nosEnvPath = path ? path.split('/').filter(p => !!p).join('/') : ''
   }
@@ -184,17 +219,17 @@ export default class NOS {
 
   /**
    *
-   * @param arg [string|array] 支持传入path，或者已经格式化好的fileMap
+   * @param args [string|array] 支持传入path，或者已经格式化好的fileMap
    * @param isRemove [boolean]
    */
-  batchHandler(arg: any, isRemove?: boolean): Q.Promise<any> {
+  batchHandler(args: Array<fileMap> | baseObjectParams, isRemove?: boolean): Q.Promise<any> {
     let counter = 0
     let successCounter = 0
     let failedCounter = 0
     let reTryCounter = 0
     let maxRetryTimes = 10
     let deferred = Q.defer()
-    let filesArgs = Array.isArray(arg) ? arg : this.getFilesArgs(arg)
+    let filesArgs = Array.isArray(args) ? args : this.getFilesArgs(args)
     let job = isRemove ? this.removeFile.bind(this) : this.putFile.bind(this)
     let start = async () => {
       if (!filesArgs[counter]) { // 任务结束
@@ -205,7 +240,7 @@ export default class NOS {
           failed: failedCounter
         })
       }
-  
+
       try {
         let res = await job(filesArgs[counter])
 
@@ -240,9 +275,13 @@ export default class NOS {
 
   }
 
-  gulpTast() {
+  gulpTast(param = { md5: false }) {
+    const { md5 } = param
     return through2.obj((file, enc, cb) => {
-      this.batchHandler(file.path)
+      this.batchHandler({
+        filePath: file.path,
+        md5
+      })
         .then(cb)
         .catch(cb)
     })

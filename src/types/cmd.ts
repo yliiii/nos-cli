@@ -14,9 +14,10 @@ export interface presetConf {
 
 export interface initInputParams {
   bucket: string;
-  config?: string;
-  env?: string;
-  list?: string;
-  upload?: string;
+  config: string;
+  env: string;
+  list: string;
+  upload: string;
+  normal: boolean
 }
 

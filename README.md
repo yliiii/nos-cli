@@ -23,6 +23,7 @@ Options:
   -l, --list [path_pattern]>  show directory
   -u, --upload <file_path>    upload file
   -e, --env <env>             key `prefixPath` from config file
+  -n, --normal                disable md5
   -h, --help                  output usage information
 ```
 

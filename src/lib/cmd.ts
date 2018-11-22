@@ -6,35 +6,38 @@ import log from './log'
 import presetConf from '../conf'
 import { resolve } from 'path'
 
-export function init(cmd: initInputParams ): void {
+export function init(cmd: initInputParams = {
+  bucket: '',
+  config: '',
+  env: '',
+  list: '',
+  upload: '',
+  normal: false
+} ): void {
   let nos: NosClient
-  let nosConf
-  let bucketCmd
-  let configCmd
-  let envCmd
-  let listCmd
-  let uploadCmd
+  let nosConf = null
+  let bucketCmd = ''
+  let configCmd = ''
+  let envCmd = ''
+  let listCmd = ''
+  let uploadCmd = ''
+  let normalCmd = false
 
   if (cmd && typeof cmd === 'string' && presetConf[cmd]) {
-    nosConf = {
-      defaultBucket: bucketCmd,
-      ...presetConf[cmd]
-    }
+    nosConf = presetConf[cmd]
   } else {
     bucketCmd = cmd.bucket
     configCmd = cmd.config
     envCmd = cmd.env
     listCmd = cmd.list
     uploadCmd = cmd.upload
+    normalCmd = cmd.normal
 
     /**这里需要使用相对路径，不能使用__dirname */
-    let config = configCmd ? require(resolve(configCmd)) : null
+    let extConfig = configCmd ? require(resolve(configCmd)) : null
 
-    if (config) {
-      nosConf = {
-        defaultBucket: bucketCmd,
-        ...config
-      }
+    if (extConfig) {
+      nosConf = extConfig
     } else {
       log.error('please use "-c" to set nos config! \n')
       process.exit(1)
@@ -47,9 +50,13 @@ export function init(cmd: initInputParams ): void {
   }
 
   let streamLogger: any
-  let { pathPrefix, ...conf } = nosConf
-  nos = new NosClient(conf, {
-    uploaded: (res: any) => streamLogger && streamLogger.info([res.objectKey, 'upload success']),
+  let defaultBucket = bucketCmd
+  let { cdn, pathPrefix, ...config } = nosConf
+  nos = new NosClient({
+    ...config,
+    defaultBucket
+  }, {
+    uploaded: (res: any) => streamLogger && streamLogger.info([cdn ? `${bucketCmd}.${cdn}/${res.objectKey}` : res.objectKey, 'upload success']),
     uploadError: (err: any) => streamLogger && streamLogger.error([err, '']),
     removed: (res: any) => streamLogger && streamLogger.info([res.objectKey, 'remove success']),
     removeError: (err: any) => streamLogger && streamLogger.error([err, '']),
@@ -69,7 +76,7 @@ export function init(cmd: initInputParams ): void {
     log.info(`env: ${envCmd} pathPrefix: ${envCmd ? pathPrefix[envCmd] : ''} \n`)
     /**如果设定了path，就需要设置环境变量来匹配path前缀 */
     let prefix = envCmd && pathPrefix ? pathPrefix[envCmd] || '' : ''
-    upload(nos, uploadCmd, prefix)
+    upload(nos, uploadCmd, prefix, !normalCmd)
   }
 }
 
@@ -93,13 +100,16 @@ export async function list(nos: NosClient, prefix: string) {
 /**
  * 上传资源
  */
-export function upload(nos: NosClient, path: string, prefix: any = '', ) {
+export function upload(nos: NosClient, path: string, prefix: any = '', md5: boolean = false ) {
   /**路径容错，防止上传至错误路径 */
   if (prefix && prefix[prefix.length - 1] !== '/') {
     prefix += '/'
   }
 
-  let filesMap = nos.getFilesArgs(path).map(map => {
+  let filesMap = nos.getFilesArgs({
+    filePath: path,
+    md5
+  }).map(map => {
     let { objectKey, fileName, file, contentType } = map
 
     return {

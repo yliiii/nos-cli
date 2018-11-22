@@ -14,6 +14,7 @@ commander
   .option("-l, --list [path_pattern]>", "show directory")
   .option("-u, --upload <file_path>", "upload file")
   .option("-e, --env <env>", "key `prefixPath` from config file")
+  .option("-n, --normal", "disable md5")
   .action(init)
   .on('--help', function() {
     console.log('\n Waiting for you!!!');
