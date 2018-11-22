@@ -107,8 +107,8 @@ export function upload(nos: NosClient, path: string, prefix: any = '', ) {
       objectKey: prefix + objectKey
     }
   })
-  console.log(filesMap)
-  // nos.batchHandler(filesMap)
+
+  nos.batchHandler(filesMap)
 
   return filesMap
 }
