@@ -8,12 +8,12 @@ commander
 commander
   // .command('init [preset_conf]')
   // .alias('i')
-  .description('初始化配置文件')
-  .option("-c, --config <config_path>", "nos配置文件的路径")
-  .option("-b, --bucket <bucket_name>", "nos桶名")
-  .option("-l, --list [path_pattern]>", "显示桶目录树")
-  .option("-u, --upload <file_path>", "上传文件")
-  .option("-e, --env <env>", "设定上传的环境变量，配合配置文件中的‘pathPrefix’使用")
+  .description('-c and -b is required everytime')
+  .option("-c, --config <config_path>", "nos config path")
+  .option("-b, --bucket <bucket_name>", "nos bucket name")
+  .option("-l, --list [path_pattern]>", "show directory")
+  .option("-u, --upload <file_path>", "upload file")
+  .option("-e, --env <env>", "key `prefixPath` from config file")
   .action(init)
   .on('--help', function() {
     console.log('\n Waiting for you!!!');
