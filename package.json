@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "ts-node ./src/index",
-    "build": "rm -rf ./dist && tsc && gulp build",
+    "build": "rm -rf ./bin ./dist && tsc && gulp build",
     "build:ts": "rm -rf ./dist && tsc"
   },
   "author": "liyi",
@@ -27,7 +27,6 @@
     "@types/table": "^4.0.5",
     "@types/through2": "^2.0.34",
     "gulp": "^3.9.1",
-    "gulp-clean": "^0.4.0",
     "gulp-header": "^2.0.5",
     "run-sequence": "^2.2.1",
     "ts-node": "^7.0.1",
