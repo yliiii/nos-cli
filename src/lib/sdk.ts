@@ -3,15 +3,15 @@ import {
   fileMap,
   listenerCallback
 } from '../types/sdk'
-import { baseObjectParams } from '../types/object'
 
 import { NosClient } from '@xgheaven/nos-node-sdk'
 import Q from 'q'
+import { baseObjectParams } from '../types/object'
+import crypto from 'crypto'
 import fs from 'fs'
 import { resolve } from 'path'
 import { sdkConf } from '../types/cmd'
 import through2 from 'through2'
-import crypto from 'crypto'
 
 const FILE_IGNORE = [
   '.DS_Store'
@@ -267,7 +267,7 @@ export default class NOS {
     }
   
     start()
-  
+
     return deferred.promise
   }
 

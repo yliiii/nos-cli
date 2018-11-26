@@ -1,3 +1,1 @@
-import sdk from './sdk'
-
-export default sdk
+module.exports = require('./sdk').default
