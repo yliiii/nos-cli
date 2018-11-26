@@ -282,8 +282,8 @@ export default class NOS {
         filePath: file.path,
         md5
       })
-        .then(cb)
-        .catch(cb)
+        .then(() => cb())
+        .catch(err => cb(err))
     })
   }
 }
