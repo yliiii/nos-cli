@@ -233,12 +233,14 @@ export default class NOS {
     let job = isRemove ? this.removeFile.bind(this) : this.putFile.bind(this)
     let start = async () => {
       if (!filesArgs[counter]) { // 任务结束
-        this.listener.completed && this.listener.completed()
-
-        return deferred.resolve({
+        let result = {
           success: successCounter,
           failed: failedCounter
-        })
+        }
+
+        this.listener.completed && this.listener.completed(result)
+
+        return deferred.resolve(result)
       }
 
       try {
