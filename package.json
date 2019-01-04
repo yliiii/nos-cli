@@ -14,7 +14,7 @@
   "author": "liyi",
   "license": "MIT",
   "dependencies": {
-    "@xgheaven/nos-node-sdk": "^0.2.1",
+    "@xgheaven/nos-node-sdk": "^0.2.2",
     "chalk": "^2.4.1",
     "commander": "^2.19.0",
     "crypto": "^1.0.1",
