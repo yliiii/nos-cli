@@ -1,6 +1,6 @@
 {
   "name": "nos-cli",
-  "version": "0.0.15",
+  "version": "0.1.0",
   "description": "nos",
   "bin": {
     "nos": "bin/index.js"
@@ -14,7 +14,7 @@
   "author": "liyi",
   "license": "MIT",
   "dependencies": {
-    "@xgheaven/nos-node-sdk": "^0.2.2",
+    "@xgheaven/nos-node-sdk": "0.2.5",
     "chalk": "^2.4.1",
     "commander": "^2.19.0",
     "crypto": "^1.0.1",

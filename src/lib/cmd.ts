@@ -56,7 +56,7 @@ export function init(cmd: initInputParams = {
     ...config,
     defaultBucket
   }, {
-    uploaded: (res: any) => streamLogger && streamLogger.info([cdn ? `${bucketCmd}.${cdn}/${res.objectKey}` : res.objectKey, 'upload success']),
+    uploaded: (res: any) => streamLogger && streamLogger.info([cdn ? `${cdn}/${res.objectKey}` : res.objectKey, 'upload success']),
     uploadError: (err: any) => streamLogger && streamLogger.error([err, '']),
     removed: (res: any) => streamLogger && streamLogger.info([res.objectKey, 'remove success']),
     removeError: (err: any) => streamLogger && streamLogger.error([err, '']),
