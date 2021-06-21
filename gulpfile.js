@@ -1,17 +1,17 @@
 const path = require('path')
 const gulp = require('gulp')
 const header = require('gulp-header')
-const runSequence = require('run-sequence')
+const runSequence = require('gulp4-run-sequence').use(gulp)
 
 const BIN_DIR = path.resolve(__dirname, 'bin')
 
 const tasks = {
   copyFile: function() {
-    return gulp.src('./dist/**/*.*')
+    return gulp.src('./dist/**/*.*', { allowEmpty: true })
       .pipe(gulp.dest(BIN_DIR))
   },
   appendEnv: function() {
-    gulp.src(BIN_DIR + '/index.js')
+    return gulp.src(BIN_DIR + '/index.js', { allowEmpty: true })
       .pipe(header('#!/usr/bin/env node \n'))
       .pipe(gulp.dest(BIN_DIR))
   }

@@ -112,6 +112,7 @@ export class Log {
   }
 
   output(...args: any[]): Log {
+    // @ts-ignore: 忽略编译报错。
     console.log.apply(null, args)
     return this
   }
